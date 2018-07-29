@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+    box-sizing: border-box;
+}
+
+input[type=text], select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+label {
+    padding: 12px 12px 12px 0;
+    display: inline-block;
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+.container1 {
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    padding: 20px;
+}
+
+.col-25 {
+    float: left;
+    width: 25%;
+    margin-top: 6px;
+}
+
+.col-75 {
+    float: left;
+    width: 75%;
+    margin-top: 6px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+    .col-25, .col-75, input[type=submit] {
+        width: 100%;
+        margin-top: 0;
+    }
+}
+
+</style>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<div>
+  <nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container">
+      <div class="navbar-header">
+		
+      </div>
+     <h1 class="text-center"><font color="white">Form Input Data Baju</font></h1>
+
+    </div>
+  </nav>
+</div>
+<div class="container1">
+  <form id='frmUtama'>
+    <div class="row">
+      <div class="col-25">
+        <label for="kode">Kode Baju</label>
+      </div>
+      <div class="col-75">
+        <input type="text" id="kode" name="kode">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="nama">Nama Baju</label>
+      </div>
+      <div class="col-75">
+        <input type="text" id="nama">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="ukuran">Ukuran</label>
+      </div>
+      <div class="col-75">
+        <select id="ukuran" name="ukuran">
+          <option value="s">S</option>
+          <option value="m">M</option>
+          <option value="l">L</option>
+          <option value="xl">XL</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="harga">Harga</label>
+      </div>
+      <div class="col-75">
+        <input type="text" id="harga" name="harga">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="deskripsi">Deskripsi</label>
+      </div>
+      <div class="col-75">
+        <textarea id="deskripsi" name="deskripsi" placeholder="Write something.." style="height:200px"></textarea>
+      </div>
+    </div>
+    <div class="row">
+      <input id='btnTambah' type="submit" value="Tambah">
+    </div>
+  </form><br>
+
+<div class="table-responsive">  
+  <div>
+  <nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container">
+      <div class="navbar-header">
+		
+      </div>
+     <h1 class="text-center"><font color="white">Tabel Data Baju</font></h1>
+
+    </div>
+  </nav>
+</div>        
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Kode Baju</th>
+        <th>Nama</th>
+        <th>Ukuran</th>
+        <th>Harga</th>
+        <th>Deskripsi</th>
+      </tr>
+    </thead>
+    <tbody id="tabel">
+    </tbody>
+  </table>
+  </div>
+<script>
+      (function() {
+        'use strict';
+
+        if (!('serviceWorker' in navigator)) {
+          console.log('Service worker not supported');
+          return;
+        }
+        navigator.serviceWorker.register('service-worker.js', {
+          scope: ''
+        })
+        .then(function(registration) {
+          console.log('Registered at scope:', registration.scope);
+        })
+        .catch(function(error) {
+          console.log('Registration failed:', error);
+        });
+
+      })();
+    </script>
+<script type="text/javascript" >
+        var tabel = document.getElementById('tabel'),
+            kode = document.getElementById('kode'),
+            nama = document.getElementById('nama'),
+            ukuran = document.getElementById('ukuran'),
+            btnTambah = document.getElementById('btnTambah'),
+            form = document.getElementById('frmUtama'),
+			harga = document.getElementById('harga'),
+			deskripsi = document.getElementById('deskripsi'),
+            db;         
+ 
+        function tambahBaris(e) {
+            // Periksa apakah kode sudah ada
+            if (tabel.rows.namedItem(kode.value)) {
+                e.preventDefault();
+                return;
+            }
+            // Tambah ke database
+            tambahKeDatabase({
+                kode: kode.value,
+                nama: nama.value,
+				ukuran: ukuran.value,
+				harga: harga.value,
+				deskripsi: deskripsi.value
+            });
+ 
+            // Membuat baris baru
+            var baris = tabel.insertRow();
+            baris.id = kode.value;
+            baris.insertCell().appendChild(document.createTextNode(kode.value));
+            baris.insertCell().appendChild(document.createTextNode(nama.value));
+            baris.insertCell().appendChild(document.createTextNode(ukuran.value));
+			baris.insertCell().appendChild(document.createTextNode(harga.value));
+			baris.insertCell().appendChild(document.createTextNode(deskripsi.value));
+ 
+            // Membuat tombol hapus untuk setiap baris
+            var btnHapus = document.createElement('input');
+            btnHapus.type = 'button';
+            btnHapus.value = 'Hapus';
+            btnHapus.id = kode.value;            
+            baris.insertCell().appendChild(btnHapus);
+ 
+            e.preventDefault();
+        }               
+ 
+        function hapusBaris(e) {
+            if (e.target.type=='button') {                
+                tabel.deleteRow(tabel.rows.namedItem(e.target.id).sectionRowIndex);
+                hapusDariDatabase(e.target.id);
+            }
+        }
+ 
+        form.addEventListener('submit', tambahBaris, false);                  
+        tabel.addEventListener('click', hapusBaris, true);            
+        function kesalahanHandler(e) {    
+        }
+    
+        function buatDatabase() {
+            var request = window.indexedDB.open('data', 1);
+            request.onerror = kesalahanHandler;
+            request.onupgradeneeded = function(e) {             
+                var db = e.target.result;
+                db.onerror = kesalahanHandler;                          
+                var objectstore = db.createObjectStore('baju', { keyPath: 'kode' });
+            }
+            request.onsuccess = function(e) {           
+                db = e.target.result;
+                db.onerror = kesalahanHandler;                          
+                bacaDariDatabase();
+            }
+        }
+
+        buatDatabase();
+
+        function buatTransaksi() {
+            var transaction = db.transaction(['baju'], 'readwrite');
+            transaction.onerror = kesalahanHandler;               
+            return transaction;
+        }
+
+        function tambahKeDatabase(baju) {      
+            var objectstore = buatTransaksi().objectStore('baju');
+            var request = objectstore.add(baju);
+            request.onerror = kesalahanHandler;
+        }
+        
+        // Menampilkan dari database
+        function bacaDariDatabase() {
+            var objectstore = buatTransaksi().objectStore('baju');
+            objectstore.openCursor().onsuccess = function(e) {
+                var result = e.target.result;
+                if (result) {
+                    var baris = tabel.insertRow();                  
+                    baris.id = result.value.kode;
+                    baris.insertCell().appendChild(document.createTextNode(result.value.kode));
+                    baris.insertCell().appendChild(document.createTextNode(result.value.nama));
+					baris.insertCell().appendChild(document.createTextNode(result.value.ukuran));
+					baris.insertCell().appendChild(document.createTextNode(result.value.harga));
+					baris.insertCell().appendChild(document.createTextNode(result.value.deskripsi));
+                    var btnHapus = document.createElement('input');
+                    btnHapus.type = 'button';
+                    btnHapus.value = 'Hapus';
+                    btnHapus.id = result.value.kode;         
+                    baris.insertCell().appendChild(btnHapus);
+                    result.continue();
+                }
+            }   
+        }
+        
+        // Hapus dari database
+        function hapusDariDatabase(kode) {
+            var objectstore = buatTransaksi().objectStore('baju');
+            var request = objectstore.delete(kode);
+            request.onerror = kesalahanHandler;
+        }
+  </script>
+
+</body>
+</html>
